@@ -15,6 +15,7 @@ from .settings import settings
 UNIX_CANDIDATES = ["/usr/local/bin/Rscript", "/opt/homebrew/bin/Rscript", "/usr/bin/Rscript",
                    "/Library/Frameworks/R.framework/Resources/bin/Rscript"]
 BASE_R_PACKAGES = ["rmarkdown", "jsonlite"]   # always required by the core
+RSCRIPT_ENV = "RSCRIPT_PATH"                   # optional full path to Rscript (e.g. set by the IDE)
 
 
 def _flags() -> int:
@@ -43,11 +44,20 @@ def _windows_candidates():
         yield from sorted(Path(root).glob("R/R-*/bin/Rscript.exe"), key=_version_key, reverse=True)
 
 
+def _env_rscript() -> str | None:
+    """Rscript given by the RSCRIPT_PATH environment variable, if it names an existing file."""
+    value = os.environ.get(RSCRIPT_ENV, "").strip().strip('"').strip()
+    return value if value and Path(value).is_file() else None
+
+
 def find_rscript() -> str | None:
-    """Preferences first, then PATH, then the usual install locations."""
+    """Preferences first, then the RSCRIPT_PATH environment variable, then PATH, then the
+    usual install locations. Invalid entries are skipped."""
     s = str(settings().value("R/rscript", "") or "")
     if s and Path(s).is_file():
         return s
+    if (e := _env_rscript()):
+        return e
     if (w := shutil.which("Rscript")):
         return w
     cands = _windows_candidates() if sys.platform == "win32" else (Path(p) for p in UNIX_CANDIDATES)

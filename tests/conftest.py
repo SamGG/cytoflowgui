@@ -17,3 +17,4 @@ def isolated_settings(tmp_path, monkeypatch):
     # On Windows, platformdirs asks the OS (not LOCALAPPDATA) unless this override is set
     monkeypatch.setenv("WIN_PD_OVERRIDE_LOCAL_APPDATA", str(tmp_path / "xdg"))
     monkeypatch.setenv("CYTOFLOW_PLUGINS_DIR", str(tmp_path / "plugins"))
+    monkeypatch.delenv("RSCRIPT_PATH", raising=False)    # set by the IDE terminal; tests opt in
