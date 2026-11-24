@@ -221,3 +221,26 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+
+# Virtual environments (never commit these)
+.venv/
+.venv-build/
+venv/
+env/
+
+# Python cache & build artifacts
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.spec
+
+# Large portable R runtime (if stored locally in the repo)
+portable_r/
+
+# Local IDE / OS junk
+.vscode/
+.idea/
+*.log

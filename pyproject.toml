@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cytoflowgui"
+version = "0.9.0"
+description = "GUI front-end gathering parameters before rendering RMarkdown scripts"
+requires-python = ">=3.11"
+dependencies = ["PySide6", "flowio", "platformdirs", "packaging", "openpyxl", "send2trash"]
+
+[project.scripts]
+cytoflowgui = "cytoflowgui.main:main"
+
+[tool.setuptools.packages.find]
+include = ["cytoflowgui*"]

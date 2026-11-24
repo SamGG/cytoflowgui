@@ -1,2 +1,2 @@
 # cytoflowgui
-GUI for cytobench
+GUI for flow cytometry analyses
