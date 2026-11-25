@@ -1,13 +1,46 @@
 """Application appearance: light (default) or follow the system."""
 from __future__ import annotations
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QColor, QPalette
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMenuBar, QStatusBar, QWidget
 
 THEMES = {"light": "Light", "system": "Follow system (may be dark)"}
 DEFAULT_THEME = "light"
+MENU_BAR_QSS = "QMenuBar { border-bottom: 1px solid palette(mid); }"
+STATUS_BAR_QSS = "QStatusBar { border-top: 1px solid palette(mid); }"
 _original_style: list[str] = []
+
+
+class _StyleSheetStyler(QObject):
+    """Keeps a stylesheet that uses palette() colours up to date. Qt resolves those colours only
+    when the stylesheet is set, so it is set again after each change of the application palette
+    (theme switch, system light/dark change). The widget itself is not notified, the application is."""
+
+    def __init__(self, widget: QWidget, qss: str):
+        super().__init__(widget)               # destroyed with the widget, which removes the filter
+        self._widget, self._qss = widget, qss
+        self._apply()
+        QApplication.instance().installEventFilter(self)
+
+    def _apply(self) -> None:
+        self._widget.setStyleSheet("")         # setting the same text again would not re-resolve
+        self._widget.setStyleSheet(self._qss)
+
+    def eventFilter(self, obj, event) -> bool:
+        if obj is QApplication.instance() and event.type() == QEvent.Type.ApplicationPaletteChange:
+            QTimer.singleShot(0, self, self._apply)   # after the new palette is in place
+        return False
+
+
+def style_menu_bar(bar: QMenuBar) -> None:
+    """Draw a line under the menu bar, following the theme."""
+    _StyleSheetStyler(bar, MENU_BAR_QSS)
+
+
+def style_status_bar(bar: QStatusBar) -> None:
+    """Draw a line above the status bar, following the theme."""
+    _StyleSheetStyler(bar, STATUS_BAR_QSS)
 
 
 def _light_palette() -> QPalette:

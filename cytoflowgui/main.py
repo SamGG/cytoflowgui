@@ -21,7 +21,7 @@ from .services.updater import UpdateResult, schedule_app_update
 from .services.workspace import Workspace, clear_recent, recent_workspaces
 from .setup_wizard import SetupDialog
 from .steps_panel import StepsPanel
-from .theme import DEFAULT_THEME, apply_theme
+from .theme import DEFAULT_THEME, apply_theme, style_menu_bar, style_status_bar
 from .update_dialog import UpdateDialog, start_check
 from .widgets import PreferencesDialog
 from .workspace_ui import browse_flow, choose_workspace, new_workspace_flow, open_path, reopen_last
@@ -102,6 +102,8 @@ class MainWindow(QMainWindow):
             help_menu.addAction(a)
 
         self.build_tools_menu()
+        style_menu_bar(self.menuBar())
+        style_status_bar(self.statusBar())
         self._refresh_workspace_ui()
         if startup:                                # tests pass startup=False
             QTimer.singleShot(0, self._startup)
