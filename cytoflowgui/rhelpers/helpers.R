@@ -15,7 +15,7 @@
 .cf$notes <- character(0)
 .cf$default_error_hook <- NULL
 
-# ---- console ---------------------------------------------------------------
+# ---- console -------------------------------------------------------
 
 # progress line, streamed into the GUI log (stderr)
 log_msg <- function(...) {
@@ -37,7 +37,7 @@ with_log <- function(expr) {
   )
 }
 
-# ---- notes: collected, logged, and printed in the report -----------------
+# ---- notes: collected, logged, and printed in the report -----------
 
 note <- function(...) {
   m <- sprintf(...)
@@ -55,7 +55,7 @@ print_notes <- function() {
   invisible(NULL)
 }
 
-# ---- small helpers -----------------------------------------------------------
+# ---- small helpers -------------------------------------------------
 
 # a single non-empty string
 is_text <- function(x) {
