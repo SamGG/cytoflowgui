@@ -29,6 +29,7 @@ GITHUB_ORG = "samgg"
 DEFAULT_PLUGINS_INDEX = f"https://raw.githubusercontent.com/{GITHUB_ORG}/cytoflowplugins/main/index.json"
 DEFAULT_APP_INDEX = f"https://github.com/{GITHUB_ORG}/cytoflowgui/releases/latest/download/app-index.json"
 ALLOWED_HOSTS = {"github.com", "raw.githubusercontent.com"}
+USER_PLUGIN_MSG = "a plugin you created has this id: rename or remove it to receive this one"
 
 
 class UpdateError(Exception):
@@ -120,7 +121,9 @@ def check_updates(installed: list[Manifest]) -> UpdateResult:
                     kind="plugin-update" if cur else "plugin-new", id=p["id"],
                     name=p.get("name", p["id"]), current=cur.version if cur else None, new=new,
                     url=p["url"], sha256=p["sha256"], origin=pidx, notes=p.get("notes", ""))
-                if Version(p.get("min_app", "0")) > Version(__version__):
+                if cur and cur.user:
+                    item.blocked = USER_PLUGIN_MSG
+                elif Version(p.get("min_app", "0")) > Version(__version__):
                     item.blocked = f"requires cytoflowgui >= {p['min_app']}"
                 elif int(p.get("api_version", API_VERSION)) != API_VERSION:
                     item.blocked = "incompatible plugin API"
@@ -182,6 +185,8 @@ def install_plugin(item: UpdateItem, log=lambda s: None) -> Manifest:
     pdir = plugins_dir()
     if _in_git_repo(pdir):
         raise UpdateError("The plugins folder is inside a git checkout (development); left untouched")
+    if (pdir / item.id / "plugin.toml").is_file() and read_manifest(pdir / item.id).user:
+        raise UpdateError(USER_PLUGIN_MSG)                 # whatever the index said
 
     cache = data_dir() / "cache"
     log(f"Downloading {item.name} {item.new}…")

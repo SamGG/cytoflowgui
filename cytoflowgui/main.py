@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QMenu, QMessage
 
 from . import __version__
 from .api import ToolContext
+from .plugin_dialog import create_plugin_flow
 from .registry import discover, load_tool
 from .run_ui import RunLogDialog
 from .services.runmanager import RunManager
@@ -91,19 +92,20 @@ class MainWindow(QMainWindow):
         for text, slot in (("Check for updates…", lambda: self.open_updates()),
                            ("Check setup…", lambda: SetupDialog(self).exec()),
                            ("Preferences…", lambda: PreferencesDialog(self).exec()),
-                           ("Reload plugins", self.build_tools_menu),
-                           ("Open plugins folder", lambda: QDesktopServices.openUrl(
-                               QUrl.fromLocalFile(str(plugins_dir())))),
+                           ("Plugins", None),
                            ("About", lambda: QMessageBox.about(
                                self, "About", f"cytoflowgui {__version__}"))):
+            if slot is None:
+                self._build_plugins_menu(help_menu.addMenu(text))
+                continue
             a = QAction(text, self)
             a.setMenuRole(QAction.MenuRole.NoRole)
             a.triggered.connect(slot)
             help_menu.addAction(a)
-
-        self.build_tools_menu()
         style_menu_bar(self.menuBar())
         style_status_bar(self.statusBar())
+
+        self.build_tools_menu()
         self._refresh_workspace_ui()
         if startup:                                # tests pass startup=False
             QTimer.singleShot(0, self._startup)
@@ -355,6 +357,31 @@ class MainWindow(QMainWindow):
                 return
             self.hide()
             QApplication.instance().quit()
+
+    # ---- ? > Plugins
+    def _build_plugins_menu(self, menu: QMenu):
+        for text, slot in (("Reload plugins", self.build_tools_menu),
+                           ("Open plugins folder", lambda: QDesktopServices.openUrl(
+                               QUrl.fromLocalFile(str(plugins_dir())))),
+                           ("Create a plugin…", self.create_plugin)):
+            a = QAction(text, self)
+            a.setMenuRole(QAction.MenuRole.NoRole)
+            a.triggered.connect(slot)
+            menu.addAction(a)
+
+    def create_plugin(self):
+        folder = create_plugin_flow(self)
+        if folder is None:
+            return
+        self.build_tools_menu()
+        box = QMessageBox(QMessageBox.Icon.Information, "Create a plugin",
+                          f"The plugin was created in:\n{folder}\n\nIt is in the Tools menu now. "
+                          "Edit its files, then use ? > Plugins > Reload plugins.", parent=self)
+        open_btn = box.addButton("Open folder", QMessageBox.ButtonRole.AcceptRole)
+        box.addButton(QMessageBox.StandardButton.Close)
+        box.exec()
+        if box.clickedButton() is open_btn:
+            QDesktopServices.openUrl(QUrl.fromLocalFile(str(folder)))
 
     # ---- tools menu
     def build_tools_menu(self):

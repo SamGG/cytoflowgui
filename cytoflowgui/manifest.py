@@ -44,6 +44,7 @@ class Manifest:
     requires_python: list[str] = field(default_factory=list)
     min_app: str = "0.0.0"
     inputs: list[InputSpec] = field(default_factory=list)
+    user: bool = False       # created by the user (Create a plugin): updates never replace it
     error: str | None = None  # set when the plugin cannot be used
 
 
@@ -69,6 +70,7 @@ def read_manifest(folder: Path) -> Manifest:
     m.requires_bioc = list(req.get("bioc", []))
     m.requires_python = list(req.get("python", []))
     m.min_app = req.get("app", "0.0.0")
+    m.user = d.get("user") is True
     for item in d.get("inputs", []):
         if "param" not in item:
             m.error = "An [[inputs]] entry lacks 'param'"

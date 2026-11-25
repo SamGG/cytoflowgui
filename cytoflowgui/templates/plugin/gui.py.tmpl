@@ -1,0 +1,62 @@
+"""GUI of the '{{name}}' tool."""
+from __future__ import annotations
+
+from pathlib import Path
+
+from PySide6.QtWidgets import QCheckBox, QLineEdit
+
+from cytoflowgui.api import ToolPlugin
+
+
+class {{class_name}}(ToolPlugin):
+    def build_ui(self):
+        self.intro.setText("{{tooltip}}")
+
+        # {{#input}}
+        self.input_file = self.input_picker("{{input_param}}", "{{input_filter}}")   # see [[inputs]]
+        # {{/input}}
+        # example parameters: replace them with your own
+        self.example_text = QLineEdit()
+        self.example_text.setPlaceholderText("a text")
+        self.example_flag = QCheckBox("An option")
+
+        f = self.form            # the step label and comment rows are already there
+        # {{#input}}
+        f.addRow("{{input_label}}:", self.input_file)
+        # {{/input}}
+        f.addRow("Text:", self.example_text)
+        f.addRow("", self.example_flag)
+
+    def validate(self) -> str | None:
+        """An error message shown to the user, or None when the parameters are valid."""
+        # {{#input}}
+        path = self.input_file.path()
+        if not path or not Path(path).exists():
+            return "Select an existing {{input_what}}."
+        # {{/input}}
+        if not self.example_text.text().strip():
+            return "Enter a text."
+        return None
+
+    def collect_parameters(self) -> dict:
+        """The parameters of the plugin (JSON-serialisable): the core adds the step context."""
+        return {
+            # {{#input}}
+            "{{input_param}}": str(Path(self.input_file.path()).resolve()),
+            # {{/input}}
+            "example_text": self.example_text.text().strip(),
+            "example_flag": self.example_flag.isChecked(),
+        }
+
+    def apply_parameters(self, p: dict) -> list[str]:
+        """The inverse of collect_parameters: fills the form for Re-run. Returns warnings."""
+        warns = []
+        # {{#input}}
+        path = p.get("{{input_param}}") or ""
+        self.input_file.edit.setText(path)
+        if path and not Path(path).exists():
+            warns.append(f"Input not found: {path}")
+        # {{/input}}
+        self.example_text.setText(p.get("example_text") or "")
+        self.example_flag.setChecked(bool(p.get("example_flag")))
+        return warns

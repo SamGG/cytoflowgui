@@ -1,0 +1,26 @@
+id = "{{id}}"
+name = "{{name}}"
+category = "{{category}}"
+tooltip = "{{tooltip}}"
+version = "0.1.0"
+api_version = {{api_version}}
+entry = "gui.py:{{class_name}}"
+rmd = "script.Rmd"
+help = "help.html"
+user = true                     # created by the user: updates never replace it. Remove it to publish.
+
+[requires]
+app = "{{app_version}}"
+python = []
+r = ["rmarkdown", "jsonlite"]   # CRAN: list every package used by script.Rmd
+bioc = []                       # Bioconductor
+
+# {{#input}}
+# input: lineage = produced by another step of the workspace (offers "From step...")
+[[inputs]]
+param = "{{input_param}}"
+kind = "{{input_kind}}"
+folder = {{input_folder}}
+lineage = true
+label = "{{input_label}}"
+# {{/input}}
