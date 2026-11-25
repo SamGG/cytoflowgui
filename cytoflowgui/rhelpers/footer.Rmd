@@ -1,0 +1,15 @@
+## Script session
+
+```{r cf_done, include=FALSE}
+log_msg("Done")
+```
+
+<details>
+<summary>Session info</summary>
+```{r cf_session_info, echo=FALSE}
+sessionInfo()
+cat(format(Sys.time(), "%Y-%m-%d %X"))
+```
+</details>
+
+<br />

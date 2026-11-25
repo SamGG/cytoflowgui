@@ -1,4 +1,4 @@
-"""Public plugin API (version 2).
+"""Public plugin API (version 3).
 
 A plugin GUI subclasses ToolPlugin and implements build_ui(), validate() and
 collect_parameters(). The core provides the step label and comment, the Help and Run buttons,
@@ -6,10 +6,12 @@ the step folder inside the workspace, the JSON parameters (the plugin's own plus
 the R pre-flight check, the process, the console log and the registry updates.
 
 Step context added by the core to the JSON read by the Rmd:
-  step_id, label, comment, workspace_dir, step_dir, data_dir, reports_dir, input_step_ids,
-  api_version, plugin_id, plugin_version.
+  step_id, label, comment, workspace_dir, step_dir, data_dir, reports_dir, helpers_dir,
+  input_step_ids, input_steps, api_version, plugin_id, plugin_version.
 The Rmd writes FCS/RDS to continue the analysis in data_dir and end products (XLSX, text) in
 reports_dir, creating them when needed. Plugins no longer choose an output folder.
+helpers_dir holds the R helpers shared by the scripts: helpers.R (to source) and footer.Rmd (a
+child document); see the Rmd contract in CLAUDE.md. Version 3 requires the scripts to use them.
 """
 from __future__ import annotations
 

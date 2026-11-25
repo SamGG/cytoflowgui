@@ -3,6 +3,7 @@ step and the registry updates (once at Run, once at the end, whatever happens in
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from PySide6.QtCore import QObject, QTimer, Signal
 
@@ -14,6 +15,7 @@ from .steps import CANCELLED, FAILED, OK, StepError, StepRegistry, Step, iso_utc
 from .workspace import REGISTRY_FILE, Workspace
 
 PARAMS_FILE, LOG_FILE = "run_parameters.json", "console.log"
+HELPERS_DIR = Path(__file__).resolve().parents[1] / "rhelpers"      # helpers.R, footer.Rmd
 
 
 class RunError(Exception):
@@ -99,7 +101,8 @@ class RunManager(QObject):
                 api_version=API_VERSION, plugin_id=manifest.id, plugin_version=manifest.version,
                 step_id=step.id, label=step.label, comment=step.comment,
                 workspace_dir=str(reg.ws.root), step_dir=str(d),
-                data_dir=str(d / "data"), reports_dir=str(d / "reports"), input_step_ids=parents,
+                data_dir=str(d / "data"), reports_dir=str(d / "reports"), helpers_dir=str(HELPERS_DIR),
+                input_step_ids=parents,
                 input_steps={r.param: r.step for r in refs})
             pfile = d / PARAMS_FILE
             pfile.write_text(json.dumps(cfg, indent=2, ensure_ascii=False), encoding="utf-8")

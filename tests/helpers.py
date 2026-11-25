@@ -1,6 +1,7 @@
 """Shared helpers for the tests that need steps without running R."""
 from pathlib import Path
 
+from cytoflowgui import API_VERSION
 from cytoflowgui.manifest import read_manifest
 from cytoflowgui.services import steps
 
@@ -10,7 +11,7 @@ def make_plugin(root: Path, plugin_id: str = "demo", inputs: str = "", rmd: str 
     d.mkdir(parents=True)
     (d / "plugin.toml").write_text(
         f'id = "{plugin_id}"\nname = "Demo"\ncategory = "Test"\ntooltip = "t"\nversion = "1.0.0"\n'
-        f'api_version = 2\nentry = "gui.py:X"\nrmd = "script.Rmd"\n{inputs}', encoding="utf-8")
+        f'api_version = {API_VERSION}\nentry = "gui.py:X"\nrmd = "script.Rmd"\n{inputs}', encoding="utf-8")
     (d / "gui.py").write_text("class X: pass\n")
     (d / "script.Rmd").write_text(rmd, encoding="utf-8")
     return d

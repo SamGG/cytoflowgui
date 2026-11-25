@@ -1,6 +1,7 @@
 import json
 import shutil
 import time
+from pathlib import Path
 
 import pytest
 
@@ -88,6 +89,7 @@ def test_successful_step(setup):
     assert cfg["step_id"] == s.id and cfg["api_version"] == API_VERSION and cfg["mode"] == "ok"
     assert cfg["step_dir"] == str(d) and cfg["data_dir"] == str(d / "data")
     assert cfg["workspace_dir"] == str(rm.registry.ws.root) and cfg["input_step_ids"] == []
+    assert (Path(cfg["helpers_dir"]) / "helpers.R").is_file() and (Path(cfg["helpers_dir"]) / "footer.Rmd").is_file()
     rm.flush_now()
     row = dict(zip(steps.COLUMNS, rm.registry.ws.registry_path.read_text("utf-8-sig").splitlines()[1].split("\t")))
     assert row["status"] == "ok" and row["comment"] == "note" and row["pid"] == ""

@@ -93,8 +93,8 @@ def test_rerun_restores_the_form(tmp_path):
     mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
     folder = tmp_path / "fcs"; folder.mkdir(); (folder / "a.fcs").write_text("x")
     done = make_step(rm.registry, "first", plugin="flowbunch_create")
-    done.params = {"fb_name": "proj", "fcs_dir": str(folder), "cytometer": "spectral", "path_mode": "relative",
-                   "cofactor": 5, "test_mode": True}
+    done.params = {"fb_name": "proj", "fcs_dir": str(folder), "cytometer": "spectral",
+                   "language": "de", "cofactor": 5, "test_mode": True}
     done.comment = "note"; done.plugin_version = "0.1.0"; rm.registry.save(done)
     tool = mod.FlowBunchCreateTool(m, ToolContext(lambda: ws, rm))
     assert tool.supports_rerun
