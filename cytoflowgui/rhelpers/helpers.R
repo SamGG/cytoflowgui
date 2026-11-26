@@ -85,7 +85,7 @@ safe_name <- function(x) {
 # the .fcs files of a folder (not recursive); stops when there is none
 list_fcs_files <- function(dir) {
   log_msg("Scanning for FCS files in: %s", dir)
-  dir <- normalizePath(dir, mustWork = TRUE)
+  dir <- normalizePath(dir, winslash = "/", mustWork = TRUE)
   files <- list.files(
     path = dir, pattern = "\\.fcs$", full.names = TRUE, ignore.case = TRUE
   )
