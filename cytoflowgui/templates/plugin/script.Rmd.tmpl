@@ -3,23 +3,29 @@ title: "{{name}}"
 output:
   html_document:
     toc: true
+    toc_float: true
     toc_depth: 3
     code_folding: hide
+    code_download: true
 params:
   params_file: ""
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(
+  echo = TRUE, message = FALSE, warning = FALSE,
+  fig.width = 10, fig.height = 6
+)
 ```
 
-```{r config, include=FALSE}
-# ---- parameters written by cytoflowgui -------------------------------------
+```{r load config and validate, include=FALSE}
+# ---- Load configuration --------------------------------------------------
 cfg <- jsonlite::read_json(params$params_file, simplifyVector = TRUE)
 # shared helpers of cytoflowgui: log_msg, with_log, note, is_text, ...
 source(file.path(cfg$helpers_dir, "helpers.R"), local = TRUE)
-
-# ---- validation ------------------------------------------------------------
+log_msg("Configuration loaded")
+# ---- Validate configuration ----------------------------------------------
+log_msg("Validating configuration...")
 stopifnot(
   # {{#input}}
   "{{input_param}} must be a non-empty string" = is_text(cfg${{input_param}}),
@@ -32,6 +38,13 @@ log_msg("Configuration validated")
 
 ## Processing
 
+```{r load_packages}
+log_msg("Loading required packages...")
+suppressPackageStartupMessages({
+  library(knitr)
+})
+```
+
 ```{r process}
 # ---- your analysis -----------------------------------------------------------
 # Data to continue the analysis (FCS, RDS) goes to cfg$data_dir, end products
@@ -43,7 +56,6 @@ log_msg("Example text: %s", cfg$example_text)
 # {{#input}}
 log_msg("Input: %s", cfg${{input_param}})
 # {{/input}}
-write_session_info(cfg)
 ```
 
 ```{r report only, include=FALSE}
@@ -77,5 +89,27 @@ knitr::kable(info)
 print_notes()
 ```
 
+## Output
+
+```{r output, results='asis'}
+cat("- test mode: the flowBunch was not written\n")
+```
+
+## Tables
+
+### Pheno table
+
+```{r table, results='asis', echo=FALSE}
+# print(knitr::kable(head(fb@pheno, 20), digits = 2,
+#   caption = "Pheno Table (first 20 rows)"))
+```
+
+## Plots
+
+### Cell counts per file
+
+```{r cell_counts}
+# ggplot()
+```
 ```{r footer, child = file.path(cfg$helpers_dir, "footer.Rmd")}
 ```
